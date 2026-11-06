@@ -1,0 +1,44 @@
+<?php
+
+namespace Phpactor\WorseReflection\Tests\Integration\Core\Inference;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use Phpactor\TextDocument\TextDocumentBuilder;
+use Phpactor\WorseReflection\Core\Inference\Walker;
+use Phpactor\WorseReflection\Reflector;
+use Phpactor\WorseReflection\Tests\Integration\IntegrationTestCase;
+use Phpactor\TestUtils\ExtractOffset;
+use Closure;
+use Generator;
+
+abstract class FrameWalkerTestCase extends IntegrationTestCase
+{
+    #[DataProvider('provideWalk')]
+    public function testWalk(string $source, Closure $assertion): void
+    {
+        [$source, $offset] = ExtractOffset::fromSource($source);
+        $path = $this->workspace()->path('test.php');
+        $source = TextDocumentBuilder::create($source)->uri($path)->build();
+        $reflector = $this->createReflectorWithWalker($source, $this->walker());
+        $reflectionOffset = $reflector->reflectOffset($source, $offset);
+        $assertion->bindTo($this)->__invoke($reflectionOffset->frame(), $offset);
+    }
+
+    abstract public static function provideWalk(): Generator;
+
+    public function walker(): ?Framewalker
+    {
+        return null;
+    }
+
+    private function createReflectorWithWalker($source, ?Walker $frameWalker = null): Reflector
+    {
+        $reflector = $this->createBuilder($source);
+
+        if ($frameWalker) {
+            $reflector->addFrameWalker($frameWalker);
+        }
+
+        return $reflector->build();
+    }
+}

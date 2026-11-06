@@ -1,0 +1,90 @@
+<?php
+
+namespace Phpactor\TextDocument\Tests\Unit;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use Closure;
+use Generator;
+use PHPUnit\Framework\TestCase;
+use Phpactor\TextDocument\EfficientLineCols;
+
+class EfficientLineColsTest extends TestCase
+{
+    /**
+     * @param list<int> $offsets
+     */
+    #[DataProvider('provideConvertOffsetsToLineCol')]
+    public function testFromByteOffsets(array $offsets, string $text, Closure $assertion): void
+    {
+        $converter = EfficientLineCols::fromByteOffsetInts($text, $offsets);
+        $assertion($converter);
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public static function provideConvertOffsetsToLineCol(): Generator
+    {
+        yield [
+            [],
+            '',
+            function (EfficientLineCols $lineCols): void {
+                self::assertInstanceOf(EfficientLineCols::class, $lineCols);
+            }
+        ];
+        yield [
+            [2],
+            '01234',
+            function (EfficientLineCols $lineCols): void {
+                self::assertEquals(3, $lineCols->get(2)->col());
+                self::assertEquals(1, $lineCols->get(2)->line());
+            }
+        ];
+        yield [
+            [2, 3, 0, 10],
+            "01234\n5678",
+            function (EfficientLineCols $lineCols): void {
+                self::assertEquals(3, $lineCols->get(2)->col());
+                self::assertEquals(1, $lineCols->get(2)->line());
+                self::assertEquals(2, $lineCols->get(10)->line());
+                self::assertEquals(5, $lineCols->get(10)->col());
+            }
+        ];
+    }
+
+    /**
+     * @param list<int> $offsets
+     */
+    #[DataProvider('provideConvertOffsetsToLineColAsOffset')]
+    public function testFromByteOffsetsAsOffset(array $offsets, string $text, Closure $assertion): void
+    {
+        $converter = EfficientLineCols::fromByteOffsetInts($text, $offsets, true);
+        $assertion($converter);
+    }
+
+    /**
+     * @return Generator<mixed>
+     */
+    public static function provideConvertOffsetsToLineColAsOffset(): Generator
+    {
+        yield 'cat' => [
+            [5],
+            'a😸bc',
+            function (EfficientLineCols $lineCols): void {
+                self::assertEquals(4, $lineCols->get(5)->col());
+            }
+        ];
+        yield 'utf16' => [
+            [46],
+            <<<'PHP'
+                <?php
+
+                echo '👩👨👦👧' . invalid() . strlen('Lorem ipsum dolor sit amet');
+                PHP,
+            function (EfficientLineCols $lineCols): void {
+                self::assertEquals(3, $lineCols->get(46)->line());
+                self::assertEquals(32, $lineCols->get(46)->col());
+            }
+        ];
+    }
+}

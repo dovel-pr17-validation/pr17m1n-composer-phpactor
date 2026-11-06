@@ -1,0 +1,27 @@
+<?php
+
+declare(strict_types=1);
+
+use Rector\CodingStyle\Rector\FuncCall\FunctionFirstClassCallableRector;
+use Rector\Config\RectorConfig;
+use Rector\PHPUnit\Set\PHPUnitSetList;
+use Rector\Php81\Rector\ClassMethod\NewInInitializerRector;
+use Rector\Php84\Rector\Param\ExplicitNullableParamTypeRector;
+
+return RectorConfig::configure()
+    ->withImportNames()
+    ->withPaths([
+        __DIR__ . '/lib',
+        __DIR__ . '/tests',
+    ])
+    ->withSkipPath('*/Workspace/*')
+    ->withSkipPath('/tests/Assets/*')
+    ->withSkipPath('/*/examples/*')
+    ->withSets([
+        PHPUnitSetList::PHPUNIT_100,
+    ])
+    ->withRules([
+        ExplicitNullableParamTypeRector::class,
+        NewInInitializerRector::class,
+        FunctionFirstClassCallableRector::class,
+    ]);

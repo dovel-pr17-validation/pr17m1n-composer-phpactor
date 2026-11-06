@@ -1,0 +1,62 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Phpactor\Application;
+
+foreach ([
+    __DIR__ . '/../../../autoload.php',
+    __DIR__ . '/../vendor/autoload.php'
+] as $file) {
+    if (file_exists($file)) {
+        $autoloadFile = $file;
+        break;
+    }
+}
+
+if (!getenv('PHPACTOR_DEPRECATIONS')) {
+    error_reporting(\E_ALL^~\E_DEPRECATED^~\E_NOTICE);
+}
+
+ini_set('display_errors', 'stderr');
+
+if (!isset($autoloadFile)) {
+    echo sprintf(
+        'Phpactor dependencies not installed. Run `composer install` (https://getcomposer.org) in "%s"' . "\n",
+        realpath(__DIR__ . '/..')
+    );
+    exit(255);
+}
+
+$minVersion = '8.2.0';
+
+if (version_compare(PHP_VERSION, $minVersion) < 0) {
+    fwrite(STDERR, sprintf('Phpactor requires at least PHP %s', $minVersion) . "\n");
+    exit(255);
+}
+
+$missingExtensions = array_filter(['mbstring', 'posix', 'tokenizer'], function (string $extension) {
+    return !extension_loaded($extension);
+});
+
+if ($missingExtensions) {
+    fwrite(STDERR, sprintf(
+        'Phpactor requires the following PHP extension(s) which are not loaded: %s. ' .
+        'Install or enable them and try again (e.g. on Fedora the posix extension is provided by the php-process package).',
+        implode(', ', $missingExtensions)
+    ) . "\n");
+    exit(255);
+}
+
+require_once $autoloadFile;
+
+$phpactorBin = $argv[0];
+$application = new Application(realpath(dirname($autoloadFile)), $phpactorBin);
+$output = new ConsoleOutput();
+
+try {
+    $application->run(null, $output);
+} catch (Exception $e) {
+    $application->renderThrowable($e, $output);
+    exit(255);
+}
