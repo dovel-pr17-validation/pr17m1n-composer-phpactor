@@ -11,7 +11,7 @@
         "symfony/yaml": "^5.1",
         "phpactor/container": "^3.0",
         "phpactor/class-to-file": "~0.5",
-        "twig/twig": "^3.4",
+        "twig/twig": "^3.30.0",
         "dnoegel/php-xdg-base-dir": "^0.1.0",
         "symfony/console": "^6.0",
         "dantleech/invoke": "^2.0",
@@ -30,9 +30,9 @@
         "phpactor/tolerant-php-parser": "dev-phan-phactor-fixes",
         "phpactor/map-resolver": "^1.7.0",
         "webmozart/assert": "^1.11",
-        "composer/semver": "^3.4",
+        "composer/semver": "^3.6.0",
         "myclabs/deep-copy": "^1.13",
-        "fidry/cpu-core-counter": "^1.1"
+        "fidry/cpu-core-counter": "^1.4.1"
     },
     "require-dev": {
         "blackfire/php-sdk": "^1.31",
@@ -41,8 +41,8 @@
         "friendsofphp/php-cs-fixer": "^3.32",
         "guzzlehttp/psr7": "^2.8",
         "jangregor/phpstan-prophecy": "^2",
-        "open-telemetry/exporter-otlp": "^1.3",
-        "open-telemetry/sdk": "^1.7",
+        "open-telemetry/exporter-otlp": "^1.5.0",
+        "open-telemetry/sdk": "^1.16.1",
         "php-http/guzzle7-adapter": "^1.1",
         "phpactor/test-utils": "^2.0.0",
         "phpbench/phpbench": "^1.6.0",
