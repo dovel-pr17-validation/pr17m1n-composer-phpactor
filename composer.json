@@ -38,7 +38,7 @@
         "blackfire/php-sdk": "^1.31",
         "dantleech/what-changed": "~0.4",
         "dms/phpunit-arraysubset-asserts": "dev-master",
-        "friendsofphp/php-cs-fixer": "^3.32",
+        "friendsofphp/php-cs-fixer": "^3.95.29",
         "guzzlehttp/psr7": "^2.8",
         "jangregor/phpstan-prophecy": "^2",
         "open-telemetry/exporter-otlp": "^1.3",
